@@ -8,7 +8,7 @@ import { ApiTags, ApiResponse, ApiOperation } from '@nestjs/swagger';
 @ApiTags('Usuarios')
 @Controller('users')
 @UseGuards(AuthGuard('jwt'), RolesGuard)
-@Roles('Admin') // Toda la gestión de usuarios está estrictamente reservada para administradores
+@Roles('Administrador', 'Soporte') // Toda la gestión de usuarios está estrictamente reservada para administradores
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 

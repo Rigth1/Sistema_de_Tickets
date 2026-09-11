@@ -17,10 +17,20 @@ export class AuthService {
   async login(loginDto: LoginDto) {
     const { email, password } = loginDto;
 
+    if (!email || !password) {
+      throw new UnauthorizedException('Credenciales inválidas');
+    }
+
     // 1. Buscar al usuario por correo y cargar su relación con el rol
     const user = await this.userRepository.findOne({
       where: { email },
       relations: { role: true },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        password_hash: true,
+      },
     });
 
     if (!user) {

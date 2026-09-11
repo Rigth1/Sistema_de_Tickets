@@ -3,15 +3,27 @@ import { TicketsService } from './tickets.service.js';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Ticket } from './entities/ticket.entity.js';
 import { TicketHistory } from './entities/ticket-history.entity.js';
+import { Comment } from './entities/comment.entity.js';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 describe('TicketsService (Lógica Esencial de Negocio)', () => {
   let service: TicketsService;
   let mockTicketRepository: any;
-  let mockTicketHistoryRepository: any; 
+  let mockTicketHistoryRepository: any;
+  let mockCommentRepository: any;
 
   beforeEach(async () => {
-    // 1. Definimos los mocks para ambos repositorios
+    // 1. Creamos un mock funcional para el QueryBuilder de TypeORM
+    const queryBuilderMock = {
+      leftJoinAndSelect: vi.fn().mockReturnThis(),
+      andWhere: vi.fn().mockReturnThis(),
+      skip: vi.fn().mockReturnThis(),
+      take: vi.fn().mockReturnThis(),
+      orderBy: vi.fn().mockReturnThis(),
+      getManyAndCount: vi.fn(),
+    };
+
+    // 2. Definimos los mocks para los repositorios necesarios
     mockTicketRepository = {
       find: vi.fn(),
       findAndCount: vi.fn(),
@@ -19,14 +31,24 @@ describe('TicketsService (Lógica Esencial de Negocio)', () => {
       create: vi.fn(),
       save: vi.fn(),
       count: (vi.fn() as any).mockResolvedValue(5),
+      createQueryBuilder: vi.fn(() => queryBuilderMock), // <-- Solución al error de createQueryBuilder
     };
+
+    // Guardamos una referencia al queryBuilderMock para usarla en los tests si es necesario
+    (mockTicketRepository as any).queryBuilderMock = queryBuilderMock;
 
     mockTicketHistoryRepository = {
       create: vi.fn(),
       save: vi.fn(),
     };
 
-    // 2. Registramos ambos en el módulo de prueba
+    mockCommentRepository = {
+      create: vi.fn(),
+      save: vi.fn(),
+      find: vi.fn(),
+    };
+
+    // 3. Registramos todos los repositorios requeridos en el módulo de prueba
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         TicketsService,
@@ -35,8 +57,12 @@ describe('TicketsService (Lógica Esencial de Negocio)', () => {
           useValue: mockTicketRepository,
         },
         {
-          provide: getRepositoryToken(TicketHistory), 
+          provide: getRepositoryToken(TicketHistory),
           useValue: mockTicketHistoryRepository,
+        },
+        {
+          provide: getRepositoryToken(Comment),
+          useValue: mockCommentRepository,
         },
       ],
     }).compile();
@@ -50,7 +76,11 @@ describe('TicketsService (Lógica Esencial de Negocio)', () => {
       { id: 2, title: 'Error de correo', status: 'in_progress' },
     ];
 
-    mockTicketRepository.findAndCount.mockResolvedValue([ticketsPrueba, ticketsPrueba.length]);
+    // Simulamos la respuesta del getManyAndCount del QueryBuilder
+    mockTicketRepository.queryBuilderMock.getManyAndCount.mockResolvedValue([
+      ticketsPrueba,
+      ticketsPrueba.length,
+    ]);
 
     console.log('--- EJECUTANDO PRUEBA: Listar Tickets ---');
     console.log('>> SE ESPERA: Un arreglo con 2 elementos');
@@ -62,10 +92,10 @@ describe('TicketsService (Lógica Esencial de Negocio)', () => {
     expect(resultado).toEqual({
       data: ticketsPrueba,
       total: 2,
-      page: 1,       // Ajusta el número de página por defecto si tu servicio usa otro (ej. 1)
-      lastPage: 1,   // Ajusta según la lógica de tu servicio
+      page: 1,
+      lastPage: 1,
     });
-    expect(mockTicketRepository.findAndCount).toHaveBeenCalledTimes(1);
+    expect(mockTicketRepository.createQueryBuilder).toHaveBeenCalledTimes(1);
   });
 
   it('ESPERADO: Crear un ticket nuevo con estado inicial "open". RESULTADO: Guarda y retorna el ticket creado', async () => {
@@ -78,7 +108,7 @@ describe('TicketsService (Lógica Esencial de Negocio)', () => {
     console.log('--- EJECUTANDO PRUEBA: Crear Ticket ---');
     console.log('>> SE ESPERA: El objeto guardado con ID 10 y status "open"');
 
-    const resultado = await service.create(nuevoTicketDto as any, 1);
+    const resultado = await service.create(nuevoTicketDto as any, { userId: 1, role: 'Administrador' });
 
     console.log('>> RESULTADO OBTENIDO:', resultado);
 

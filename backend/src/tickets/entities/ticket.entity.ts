@@ -25,7 +25,7 @@ export class Ticket {
   status: string; // Abierto, En Progreso, Resuelto, Cerrado
 
   @Column({ default: 'Media' })
-  priority: string; // Baja, Media, Alta, Urgente
+  priority: string; // Bajo, Medio, Alto, Critico
 
   @Column()
   created_by: number;
@@ -35,7 +35,14 @@ export class Ticket {
   creator: any;
 
   @Column({ nullable: true })
-  assigned_to: number;
+  affected_user: number; // Nuevo campo físico
+
+  @ManyToOne('User', { nullable: true, eager: true })
+  @JoinColumn({ name: 'affected_user' })
+  affectedUser: any;     // Relación poblada para el usuario afectado
+
+  @Column({ nullable: true })
+  assigned_to: number | null;
 
   @ManyToOne('User', { nullable: true, eager: true })
   @JoinColumn({ name: 'assigned_to' })

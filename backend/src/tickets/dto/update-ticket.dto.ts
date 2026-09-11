@@ -1,5 +1,5 @@
 import { PartialType, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsString, IsOptional, IsNumber, IsBoolean } from 'class-validator';
+import { IsString, IsOptional, IsNumber, IsBoolean, IsInt } from 'class-validator';
 import { CreateTicketDto } from './create-ticket.dto.js';
 
 export class UpdateTicketDto extends PartialType(CreateTicketDto) {
@@ -23,7 +23,7 @@ export class UpdateTicketDto extends PartialType(CreateTicketDto) {
     description: 'ID del usuario al que se reasignará el ticket', 
     example: 2 
   })
-  @IsNumber()
+  @IsInt()
   @IsOptional()
   assigned_to?: number | null;
 

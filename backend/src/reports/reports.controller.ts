@@ -28,7 +28,7 @@ export class ReportsController {
   @ApiResponse({ status: 401, description: 'No autorizado. Se requiere autenticación.' })
   @ApiResponse({ status: 403, description: 'Acceso denegado. Solo los administradores pueden exportar reportes.' })
   @UseGuards(RolesGuard)
-  @Roles('Admin')
+  @Roles('Administrador')
   async exportCsv(@Res() res: Response) {
     const data = await this.reportsService.getTicketsForExport();
 

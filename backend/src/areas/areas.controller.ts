@@ -28,7 +28,7 @@ export class AreasController {
   @ApiResponse({ status: 401, description: 'No autorizado. Se requiere autenticación.' })
   @ApiResponse({ status: 403, description: 'Acceso denegado. Solo los administradores pueden crear áreas.' })
   @UseGuards(RolesGuard)
-  @Roles('Admin')
+  @Roles('Administrador')
   create(@Body() createAreaDto: CreateAreaDto) {
     return this.areasService.create(createAreaDto);
   }
