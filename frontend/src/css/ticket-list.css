@@ -1,0 +1,406 @@
+/* src/css/ticket-list.css */
+.ticket-page-container {
+  min-height: 100vh;
+  background-color: #020617;
+  color: #f8fafc;
+  padding: 2rem;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+.ticket-header {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+@media (min-width: 768px) {
+  .ticket-header {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.ticket-title {
+  font-size: 1.875rem;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  background: linear-gradient(to right, #ffffff, #cbd5e1, #94a3b8);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.ticket-subtitle {
+  color: #94a3b8;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
+.btn-primary {
+  background-color: #4f46e5;
+  color: #ffffff;
+  padding: 0.625rem 1.25rem;
+  border-radius: 0.75rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.2);
+  border: none;
+  cursor: pointer;
+}
+
+.btn-primary:hover {
+  background-color: #4338ca;
+  box-shadow: 0 10px 20px -3px rgba(79, 70, 229, 0.4);
+}
+
+/* Tarjetas de Áreas / Colas */
+.areas-grid {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+@media (min-width: 640px) {
+  .areas-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (min-width: 1024px) {
+  .areas-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+
+.area-card {
+  padding: 1.25rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(30, 41, 59, 0.8);
+  background-color: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(12px);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.area-card:hover {
+  border-color: rgba(51, 65, 85, 1);
+}
+
+.area-card.active {
+  background-color: rgba(30, 27, 75, 0.4);
+  border-color: rgba(99, 102, 241, 0.5);
+  box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.1);
+}
+
+/* Barra de Filtros */
+.filters-bar {
+  background-color: rgba(15, 23, 42, 0.4);
+  border: 1px solid rgba(30, 41, 59, 0.8);
+  padding: 1rem;
+  border-radius: 1rem;
+  backdrop-filter: blur(12px);
+  margin-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+@media (min-width: 768px) {
+  .filters-bar {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.search-input-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .search-input-wrapper { width: 20rem; }
+}
+
+.search-input {
+  width: 100%;
+  background-color: rgba(2, 6, 23, 0.6);
+  border: 1px solid #1e293b;
+  border-radius: 0.75rem;
+  padding: 0.5rem 1rem 0.5rem 2.5rem;
+  font-size: 0.875rem;
+  color: #e2e8f0;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.search-input:focus {
+  border-color: #6366f1;
+}
+
+/* Tabla Moderna */
+.table-container {
+  background-color: rgba(15, 23, 42, 0.4);
+  border: 1px solid rgba(30, 41, 59, 0.8);
+  border-radius: 1rem;
+  overflow: hidden;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+.modern-table {
+  width: 100%;
+  text-align: left;
+  border-collapse: collapse;
+}
+
+.modern-table th {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid rgba(30, 41, 59, 0.8);
+  background-color: rgba(15, 23, 42, 0.6);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.modern-table td {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid rgba(30, 41, 59, 0.5);
+  font-size: 0.875rem;
+}
+
+.modern-table tr:hover {
+  background-color: rgba(30, 41, 59, 0.3);
+}
+
+/* Badges de Estado y Prioridad */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.625rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  border: 1px solid;
+}
+
+.badge-abierto { background-color: rgba(16, 185, 129, 0.1); color: #34d399; border-color: rgba(16, 185, 129, 0.2); }
+.badge-progreso { background-color: rgba(99, 102, 241, 0.1); color: #818cf8; border-color: rgba(99, 102, 241, 0.2); }
+.badge-resuelto { background-color: rgba(168, 85, 247, 0.1); color: #c084fc; border-color: rgba(168, 85, 247, 0.2); }
+.badge-critico { background-color: rgba(244, 63, 94, 0.1); color: #fb7185; border-color: rgba(244, 63, 94, 0.2); }
+.badge-alto { background-color: rgba(245, 158, 11, 0.1); color: #fbbf24; border-color: rgba(245, 158, 11, 0.2); }
+.badge-medio { background-color: rgba(59, 130, 246, 0.1); color: #60a5fa; border-color: rgba(59, 130, 246, 0.2); }
+.badge-bajo { background-color: rgba(100, 116, 139, 0.1); color: #94a3b8; border-color: rgba(100, 116, 139, 0.2); }
+
+/* Secciones y contenedores adicionales */
+.areas-section-wrapper {
+  margin-bottom: 2rem;
+}
+
+.areas-section-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: #94a3b8;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.areas-title-icon {
+  color: #818cf8;
+}
+
+.area-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.area-card-subtitle {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #cbd5e1;
+}
+
+.area-card-name-ellipsis {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #cbd5e1;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.area-card-main-title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  margin-top: 0.75rem;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.area-card-footer-link {
+  margin-top: 1rem;
+  display: flex;
+  align-items: center;
+  font-size: 0.75rem;
+  color: #818cf8;
+  font-weight: 500;
+}
+
+.area-card-footer-link.muted {
+  color: #94a3b8;
+}
+
+.area-card-icon-spacing {
+  margin-left: 0.25rem;
+}
+
+/* Filtros de Estado */
+.status-filters-scroll {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  overflow-x: auto;
+  padding-bottom: 0.5rem;
+}
+
+.status-filter-label {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  text-transform: uppercase;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-right: 0.5rem;
+  white-space: nowrap;
+}
+
+.status-filter-btn {
+  padding: 0.375rem 0.75rem;
+  border-radius: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+  background-color: #0f172a;
+  color: #94a3b8;
+  border: 1px solid #1e293b;
+}
+
+.status-filter-btn.active {
+  background-color: #4f46e5;
+  color: #ffffff;
+  border-color: #4f46e5;
+}
+
+/* Posicionamiento y utilidades de tabla */
+.search-icon-pos {
+  color: #94a3b8;
+  position: absolute;
+  left: 0.875rem;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.table-scroll-wrapper {
+  overflow-x: auto;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.table-empty-state {
+  padding: 3rem;
+  text-align: center;
+  color: #64748b;
+}
+
+.table-cell-id-title {
+  font-weight: 600;
+  color: #e2e8f0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.ticket-id-badge {
+  font-size: 0.75rem;
+  font-family: monospace;
+  color: #64748b;
+  background-color: #0f172a;
+  padding: 0.125rem 0.375rem;
+  borderRadius: 0.25rem;
+  border: 1px solid #1e293b;
+}
+
+.ticket-title-text {
+  color: #f8fafc;
+}
+
+.ticket-subtext {
+  font-size: 0.75rem;
+  color: #64748b;
+  margin-top: 0.125rem;
+}
+
+.table-area-text {
+  color: #cbd5e1;
+  font-weight: 500;
+}
+
+.table-cell-main {
+  font-weight: 500;
+  color: #f8fafc;
+}
+
+.assignee-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #cbd5e1;
+  fontSize: 0.75rem;
+}
+
+.assignee-avatar {
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 9999px;
+  background-color: #1e293b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  color: #94a3b8;
+  border: 1px solid #334155;
+}
+
+.assignee-name {
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.action-icon-btn {
+  padding: 0.5rem;
+  border-radius: 0.75rem;
+  background-color: rgba(30, 41, 59, 0.6);
+  color: #cbd5e1;
+  border: 1px solid rgba(51, 65, 85, 0.6);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.action-icon-btn:hover {
+  background-color: rgba(51, 65, 85, 0.8);
+  color: #ffffff;
+}

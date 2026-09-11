@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Mail, Lock, LifeBuoy } from 'lucide-react';
 import { authService } from '../../services/authService';
+import { useAuth } from '../../context/AuthContext';
 import '../../css/auth.css';
 
 export default function LoginPage() {
@@ -10,6 +11,7 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -22,12 +24,7 @@ export default function LoginPage() {
       
       // Guardar el token (asumiendo que el back retorna access_token o token)
       const token = data.access_token || data.token;
-      localStorage.setItem('token', token);
-      
-      // Opcional: Guardar datos del usuario si vienen en la respuesta
-      if (data.user) {
-        localStorage.setItem('user', JSON.stringify(data.user));
-      }
+      login(token, data.user);
 
       // Redirigir al Dashboard operativo
       navigate('/dashboard');

@@ -18,11 +18,11 @@ ORDER BY u.name, t.status;
 SELECT 
     u.name AS client_name,
     COUNT(t.id) AS critical_tickets,
-    COUNT(CASE WHEN t.priority = 'Alta' THEN 1 END) AS alta_count,
-    COUNT(CASE WHEN t.priority = 'Urgente' THEN 1 END) AS urgente_count
+    COUNT(CASE WHEN t.priority = 'Alto' THEN 1 END) AS alta_count,
+    COUNT(CASE WHEN t.priority = 'Critico' THEN 1 END) AS urgente_count
 FROM tickets t
 JOIN users u ON t.created_by = u.id
-WHERE t.priority IN ('Alta', 'Urgente')
+WHERE t.priority IN ('Alto', 'Critico')
 GROUP BY u.id, u.name
 ORDER BY critical_tickets DESC
 LIMIT 5;
