@@ -28,7 +28,7 @@ export class TicketHistory {
     @Column({ type: 'text' })
     action_description: string;
 
-    @Column({ nullable: true })
+    @Column({ type: 'varchar', length: 100, nullable: true })
     field_changed?: string | null;
 
     @Column({ nullable: true, type: 'text' })

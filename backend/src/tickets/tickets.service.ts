@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Ticket } from './entities/ticket.entity.js';
 import { TicketHistory } from './entities/ticket-history.entity.js';
+import { Comment } from './entities/comment.entity.js';
 import { CreateTicketDto } from './dto/create-ticket.dto.js';
 import { UpdateTicketDto } from './dto/update-ticket.dto.js';
 
@@ -13,6 +14,8 @@ export class TicketsService {
         private readonly ticketRepository: Repository<Ticket>,
         @InjectRepository(TicketHistory)
         private readonly historyRepository: Repository<TicketHistory>,
+        @InjectRepository(Comment)
+        private readonly commentRepository: Repository<Comment>,
     ) { }
 
     async create(createTicketDto: CreateTicketDto, userId: number): Promise<Ticket> {
@@ -87,54 +90,75 @@ export class TicketsService {
     }
 
     async update(id: number, updateTicketDto: UpdateTicketDto, userId: number): Promise<Ticket> {
-        const ticket = await this.findOne(id);
+    const ticket = await this.findOne(id);
 
-        const previousAssignee = ticket.assigned_to;
-        const previousStatus = ticket.status;
+    const previousAssignee = ticket.assigned_to;
+    const previousStatus = ticket.status;
+    const previousArea = ticket.area_id;
 
-        // 1. Actualizamos el ticket directamente con el DTO
-        Object.assign(ticket, updateTicketDto);
-        const updatedTicket = await this.ticketRepository.save(ticket);
+    // 1. Extraemos el comentario para guardarlo en su propia tabla y no mezclarlo con el ticket
+    const { comment, is_internal, ...ticketUpdates } = updateTicketDto;
 
-        // 2. Si enviaron una nota o comentario de gestión
-        if (updateTicketDto.comment) {
-            const historyComment = this.historyRepository.create({
-                ticket_id: ticket.id,
-                changed_by: userId,
-                action_description: updateTicketDto.comment,
-                field_changed: 'comment',
-                old_value: null,
-                new_value: updateTicketDto.comment,
-            });
-            await this.historyRepository.save(historyComment);
-        }
+    // Actualizamos los campos directos del ticket con el DTO restante
+    Object.assign(ticket, ticketUpdates);
 
-        // 3. Registrar cambio o reasignación de agente
-        if (updateTicketDto.assigned_to !== undefined && previousAssignee !== updateTicketDto.assigned_to) {
-            const historyAssign = this.historyRepository.create({
-                ticket_id: ticket.id,
-                changed_by: userId,
-                action_description: `El ticket fue reasignado del usuario ${previousAssignee ?? 'Ninguno'} al usuario ${updateTicketDto.assigned_to ?? 'Ninguno'}`,
-                field_changed: 'assigned_to',
-                old_value: previousAssignee ? String(previousAssignee) : null,
-                new_value: updateTicketDto.assigned_to !== null && updateTicketDto.assigned_to !== undefined ? String(updateTicketDto.assigned_to) : null,
-            });
-            await this.historyRepository.save(historyAssign);
-        }
-
-        // 4. Registrar cambio de estado
-        if (updateTicketDto.status && previousStatus !== updateTicketDto.status) {
-            const historyStatus = this.historyRepository.create({
-                ticket_id: ticket.id,
-                changed_by: userId,
-                action_description: `El estado cambió de '${previousStatus}' a '${updateTicketDto.status}'`,
-                field_changed: 'status',
-                old_value: previousStatus,
-                new_value: updateTicketDto.status,
-            });
-            await this.historyRepository.save(historyStatus);
-        }
-
-        return updatedTicket;
+    // Automatizar fecha de resolución si el estado pasa a resuelto o cerrado
+    if (updateTicketDto.status && ['Resuelto', 'Cerrado'].includes(updateTicketDto.status) && previousStatus !== updateTicketDto.status) {
+        ticket.resolved_at = new Date();
     }
+
+    const updatedTicket = await this.ticketRepository.save(ticket);
+
+    // 2. Si enviaron un comentario o nota de gestión, se guarda en la tabla 'comments'
+    if (comment) {
+        const newComment = this.commentRepository.create({
+            ticket_id: ticket.id,
+            user_id: userId,
+            content: comment,
+            is_internal: is_internal ?? false,
+        });
+        await this.commentRepository.save(newComment);
+    }
+
+    // 3. Registrar cambio de ÁREA en el historial y actualizar ticket si aplica
+    if (updateTicketDto.area_id !== undefined && previousArea !== updateTicketDto.area_id) {
+        await this.historyRepository.save({
+            ticket_id: ticket.id,
+            changed_by: userId,
+            field_changed: 'area_id',
+            old_value: String(previousArea),
+            new_value: String(updateTicketDto.area_id),
+            action_description: `El ticket fue movido del área ID ${previousArea} al área ID ${updateTicketDto.area_id}`,
+        });
+    }
+
+    // 4. Registrar reasignación de AGENTE y aumentar el contador optimizado 'reassignment_count'
+    if (updateTicketDto.assigned_to !== undefined && previousAssignee !== updateTicketDto.assigned_to) {
+        ticket.reassignment_count = (ticket.reassignment_count || 0) + 1;
+        await this.ticketRepository.save(ticket); // Guardamos el incremento del contador
+
+        await this.historyRepository.save({
+            ticket_id: ticket.id,
+            changed_by: userId,
+            field_changed: 'assigned_to',
+            old_value: previousAssignee ? String(previousAssignee) : null,
+            new_value: updateTicketDto.assigned_to !== null && updateTicketDto.assigned_to !== undefined ? String(updateTicketDto.assigned_to) : null,
+            action_description: `El ticket fue reasignado del usuario ${previousAssignee ?? 'Ninguno'} al usuario ${updateTicketDto.assigned_to ?? 'Ninguno'}`,
+        });
+    }
+
+    // 5. Registrar cambio de ESTADO
+    if (updateTicketDto.status && previousStatus !== updateTicketDto.status) {
+        await this.historyRepository.save({
+            ticket_id: ticket.id,
+            changed_by: userId,
+            field_changed: 'status',
+            old_value: previousStatus,
+            new_value: updateTicketDto.status,
+            action_description: `El estado cambió de '${previousStatus}' a '${updateTicketDto.status}'`,
+        });
+    }
+
+    return updatedTicket;
+}
 }

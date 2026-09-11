@@ -17,9 +17,9 @@ ORDER BY u.name, t.status;
 -- 2. Obtener los cinco clientes (creadores) con mayor cantidad de tickets de prioridad alta o urgente
 SELECT 
     u.name AS client_name,
-    COUNT(t.id) AS critical_tickets, -- Total combinado (sigue ordenando por esto)
-    COUNT(CASE WHEN t.priority = 'Alta' THEN 1 END) AS alta_count,     -- Cuántas son de prioridad Alta
-    COUNT(CASE WHEN t.priority = 'Urgente' THEN 1 END) AS urgente_count -- Cuántas son de prioridad Urgente
+    COUNT(t.id) AS critical_tickets,
+    COUNT(CASE WHEN t.priority = 'Alta' THEN 1 END) AS alta_count,
+    COUNT(CASE WHEN t.priority = 'Urgente' THEN 1 END) AS urgente_count
 FROM tickets t
 JOIN users u ON t.created_by = u.id
 WHERE t.priority IN ('Alta', 'Urgente')
@@ -40,26 +40,28 @@ WHERE t.status NOT IN ('Cerrado', 'Resuelto')
 
 
 -- 4. Obtener el usuario con mayor cantidad de tickets resueltos durante el último mes
+-- (Optimizado usando la nueva columna automatizada 'resolved_at')
 SELECT 
     u.id AS user_id,
     u.name AS user_name,
     COUNT(t.id) AS resolved_tickets_last_month
 FROM tickets t
 JOIN users u ON t.assigned_to = u.id
-WHERE t.status = 'Cerrado'
-  AND t.updated_at >= NOW() - INTERVAL '1 month'
+WHERE t.status IN ('Cerrado', 'Resuelto')
+  AND t.resolved_at >= NOW() - INTERVAL '1 month'
 GROUP BY u.id, u.name
 ORDER BY resolved_tickets_last_month DESC
 LIMIT 1;
 
 
 -- 5. Obtener el tiempo promedio de resolución de tickets por prioridad
--- (Calculado desde la creación hasta su última actualización/cierre)
+-- (Ahora usa 'resolved_at' de forma exacta en lugar de 'updated_at')
 SELECT 
     priority,
-    AVG(EXTRACT(EPOCH FROM (updated_at - created_at)) / 3600) AS avg_resolution_hours
+    AVG(EXTRACT(EPOCH FROM (resolved_at - created_at)) / 3600) AS avg_resolution_hours
 FROM tickets
 WHERE status IN ('Resuelto', 'Cerrado')
+  AND resolved_at IS NOT NULL
 GROUP BY priority;
 
 
@@ -76,16 +78,13 @@ ORDER BY open_tickets_count DESC;
 
 
 -- 7. Obtener los tickets que han sido reasignados más de dos veces
--- (Validando los cambios registrados en la tabla 'ticket_history')
+-- (Opción ultra rápida aprovechando la columna de control 'reassignment_count')
 SELECT 
-    t.id AS ticket_id,
-    t.title,
-    COUNT(th.id) AS reassignments_count
-FROM tickets t
-JOIN ticket_history th ON t.id = th.ticket_id
-WHERE th.field_changed = 'assigned_to'
-GROUP BY t.id, t.title
-HAVING COUNT(th.id) > 2;
+    id AS ticket_id,
+    title,
+    reassignment_count
+FROM tickets
+WHERE reassignment_count > 2;
 
 
 -- 8. Obtener el porcentaje de tickets cerrados frente al total de tickets creados en los últimos 30 días

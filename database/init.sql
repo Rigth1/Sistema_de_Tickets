@@ -28,26 +28,16 @@ CREATE TABLE user_areas (
     PRIMARY KEY (user_id, area_id)
 );
 
--- Creación de Clientes
-CREATE TABLE clients (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(150) NOT NULL,
-    email VARCHAR(150),
-    company VARCHAR(150),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- Creación de Tickets
+-- Creación de Tickets (Ajustado sin la tabla clients)
 CREATE TABLE tickets (
     id SERIAL PRIMARY KEY,
     title VARCHAR(200) NOT NULL,
     description TEXT NOT NULL,
-    status VARCHAR(50) NOT NULL DEFAULT 'open', -- 'open', 'in_progress', 'resolved', 'closed'
-    priority VARCHAR(50) NOT NULL DEFAULT 'medium', -- 'low', 'medium', 'high', 'critical'
-    client_id INT NOT NULL REFERENCES clients(id),
+    status VARCHAR(50) NOT NULL DEFAULT 'Abierto', -- 'Abierto', 'En_Progreso', 'Resuelto', 'Cerrado'
+    priority VARCHAR(50) NOT NULL DEFAULT 'Media', -- 'Bajo', 'Medio', 'Alto', 'Critico'
     area_id INT NOT NULL REFERENCES areas(id),
     assigned_to INT REFERENCES users(id) ON DELETE SET NULL,
-    created_by INT NOT NULL REFERENCES users(id),
+    created_by INT NOT NULL REFERENCES users(id), -- Usuario (Cliente o Agente) que abrió el ticket
     reassignment_count INT DEFAULT 0, -- Control para reasignaciones
     resolved_at TIMESTAMP, -- Requerido para métricas de tiempo de resolución
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -64,17 +54,26 @@ CREATE TABLE comments (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Creación de la tabla de Historial / Trazabilidad de Tickets (Log en línea para Admins)
+-- Creación de la tabla de Historial / Trazabilidad de Tickets (Alineada con la lógica de NestJS)
 CREATE TABLE ticket_history (
     id SERIAL PRIMARY KEY,
     ticket_id INT NOT NULL REFERENCES tickets(id) ON DELETE CASCADE,
-    user_id INT REFERENCES users(id) ON DELETE SET NULL,
-    action_type VARCHAR(50) NOT NULL, -- 'CREATED', 'STATUS_CHANGE', 'ASSIGNMENT_CHANGE', 'AREA_CHANGE', 'PRIORITY_CHANGE'
-    old_value TEXT,
-    new_value TEXT,
-    description TEXT NOT NULL,
+    changed_by INT REFERENCES users(id) ON DELETE SET NULL, -- Coincide con el servicio (antes user_id)
+    field_changed VARCHAR(100),                              -- Coincide con el servicio (antes action_type)
+    old_value TEXT,                                          -- Valor anterior del cambio
+    new_value TEXT,                                          -- Nuevo valor del cambio
+    action_description TEXT NOT NULL,                        -- Coincide con el servicio (antes description)
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+-- 1. Índices esenciales para evitar lentitud cuando crezca el Historial y los Tickets
+CREATE INDEX idx_ticket_history_ticket_id ON ticket_history(ticket_id);
+CREATE INDEX idx_ticket_history_created_at ON ticket_history(created_at);
+
+-- 2. Índices en la tabla tickets para que los filtros por estado, área o cliente vuelen
+CREATE INDEX idx_tickets_status ON tickets(status);
+CREATE INDEX idx_tickets_area_id ON tickets(area_id);
+CREATE INDEX idx_tickets_assigned_to ON tickets(assigned_to);
 
 -- Inserción de roles base
 INSERT INTO roles (name) VALUES ('Administrador'), ('Agente'), ('Supervisor');

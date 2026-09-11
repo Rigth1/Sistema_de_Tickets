@@ -5,6 +5,13 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  // Habilitar CORS para permitir peticiones desde el frontend
+  app.enableCors({
+    origin: 'http://localhost:5173', // La URL de tu frontend
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true,
+  });
+
   // 👇 1. Configuración básica de Swagger
   const config = new DocumentBuilder()
     .setTitle('Sistema de Tickets API')

@@ -12,20 +12,13 @@ export class UsersService {
 
     async findAll(): Promise<User[]> {
         return await this.userRepository.find({
-            relations: {
-                role: true,
-                areas: true
-            }, // Traemos el rol y las áreas asociadas desde la entidad
+            order: { name: 'ASC'}
         });
     }
 
     async findOne(id: number): Promise<User> {
         const user = await this.userRepository.findOne({
             where: { id },
-            relations: {
-                role: true,
-                areas: true
-            },
         });
         if (!user) {
             throw new NotFoundException(`Usuario con ID ${id} no encontrado`);

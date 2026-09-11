@@ -1,0 +1,167 @@
+/* src/css/auth.css */
+.auth-container {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+  background-color: #0f172a;
+}
+
+/* Panel Izquierdo: Branding Empresarial */
+.auth-brand-panel {
+  flex: 1;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 4rem;
+}
+
+.brand-content h1 {
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin-bottom: 1rem;
+  letter-spacing: -0.025em;
+}
+
+.brand-content h1 span {
+  color: #38bdf8;
+}
+
+.brand-content p {
+  color: #94a3b8;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  max-width: 450px;
+}
+
+.brand-footer {
+  color: #64748b;
+  font-size: 0.875rem;
+}
+
+/* Panel Derecho: Formulario */
+.auth-form-panel {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background-color: #f8fafc;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 420px;
+  background: #ffffff;
+  padding: 2.5rem;
+  border-radius: 1rem;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e2e8f0;
+}
+
+.auth-header h2 {
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 0.5rem;
+}
+
+.auth-header p {
+  color: #64748b;
+  font-size: 0.95rem;
+  margin-bottom: 2rem;
+}
+
+.error-alert {
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #991b1b;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  margin-bottom: 1.5rem;
+}
+
+.form-group {
+  margin-bottom: 1.25rem;
+}
+
+.form-group label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #334155;
+  margin-bottom: 0.5rem;
+}
+
+.input-with-icon {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-with-icon svg {
+  position: absolute;
+  left: 1rem;
+  color: #94a3b8;
+  width: 20px;
+  height: 20px;
+}
+
+.input-with-icon input {
+  width: 100%;
+  padding: 0.75rem 1rem 0.75rem 2.75rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.5rem;
+  font-size: 0.95rem;
+  outline: none;
+  transition: all 0.2s;
+  background-color: #f8fafc;
+}
+
+.input-with-icon input:focus {
+  border-color: #0284c7;
+  background-color: #ffffff;
+  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+}
+
+.auth-button {
+  width: 100%;
+  background-color: #0f172a;
+  color: #ffffff;
+  font-weight: 600;
+  padding: 0.75rem 1rem;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  margin-top: 1rem;
+}
+
+.auth-button:hover {
+  background-color: #1e293b;
+}
+
+.auth-button:disabled {
+  background-color: #94a3b8;
+  cursor: not-allowed;
+}
+
+/* Responsivo para tablets y celulares */
+@media (max-width: 968px) {
+  .auth-container {
+    flex-direction: column;
+  }
+  .auth-brand-panel {
+    padding: 2rem;
+    min-height: auto;
+  }
+  .auth-brand-panel .brand-content {
+    margin: 1.5rem 0;
+  }
+  .auth-form-panel {
+    padding: 2rem 1rem;
+  }
+}

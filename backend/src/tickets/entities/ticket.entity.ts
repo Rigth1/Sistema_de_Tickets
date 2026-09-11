@@ -8,6 +8,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { Comment } from './comment.entity.js'; // <--- Importa la entidad Comment
 
 @Entity('tickets')
 export class Ticket {
@@ -16,7 +17,7 @@ export class Ticket {
 
   @Column()
   title: string;
-
+  
   @Column({ type: 'text' })
   description: string;
 
@@ -46,6 +47,15 @@ export class Ticket {
   @ManyToOne('Area', { eager: true })
   @JoinColumn({ name: 'area_id' })
   area: any;
+
+  @Column({ nullable: true })
+  reassignment_count: number; // <--- Añadido para el control de reasignaciones
+
+  @Column({ type: 'timestamp', nullable: true })
+  resolved_at: Date; // <--- Añadido para métricas de resolución
+
+  @OneToMany(() => Comment, (comment) => comment.ticket, { cascade: true })
+  comments: Comment[]; // <--- Relación con la nueva tabla de comentarios
 
   @OneToMany('TicketHistory', (history: any) => history.ticket, { cascade: true })
   history: any[];

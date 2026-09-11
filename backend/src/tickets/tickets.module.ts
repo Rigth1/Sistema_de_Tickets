@@ -4,10 +4,11 @@ import { TicketsService } from './tickets.service.js';
 import { TicketsController } from './tickets.controller.js';
 import { Ticket } from './entities/ticket.entity.js';
 import { TicketHistory } from './entities/ticket-history.entity.js';
+import { Comment } from './entities/comment.entity.js';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Ticket, TicketHistory]),
+    TypeOrmModule.forFeature([Ticket, TicketHistory, Comment]),
   ],
   controllers: [TicketsController],
   providers: [TicketsService],
