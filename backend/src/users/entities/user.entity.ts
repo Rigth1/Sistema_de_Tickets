@@ -22,12 +22,12 @@ export class User {
   @Column({ unique: true })
   email: string;
 
-  @Column()
+  @Column({ select: false }) // select: false para que no se devuelva el hash de la contraseña al consultar un usuario
   password_hash: string;
 
-  @Column()
+  @Column({ default: 'Cliente' }) // cliente por defecto para que al registrarse un usuario no pueda asignarse un rol de administrador o soporte por error
   role_id: number;
-    // relacion con role eager loading para que siempre que se consulte un usuario, se traiga su rol asociado
+  // relacion con role eager loading para que siempre que se consulte un usuario, se traiga su rol asociado
   @ManyToOne(() => Role, (role) => role.users, { eager: true })
   @JoinColumn({ name: 'role_id' })
   role: Role;

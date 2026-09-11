@@ -1,34 +1,30 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module.js';
 import { TicketsModule } from './tickets/tickets.module.js';
+import { AreasModule } from './areas/areas.module.js';
+import { UsersModule } from './users/users.module.js';
+import { ReportsModule } from './reports/reports.module.js';
+import databaseConfig from './config/database.config.js';
 
 @Module({
   imports: [
     // 1. Configuración de variables de entorno
-    ConfigModule.forRoot({ isGlobal: true }),
-
-    // 2. Configuración asíncrona de TypeORM
+    ConfigModule.forRoot({ 
+      isGlobal: true,
+      load: [databaseConfig], // Cargar la configuración de la base de datos desde un archivo externo
+    }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
-      useFactory: (configService: ConfigService) => ({
-        type: 'postgres',
-        // Configuración de la conexión a la base de datos usando variables de entorno y valores por defecto para desarrollo local
-        host: configService.get<string>('DB_HOST', 'localhost'),
-        port: configService.get<number>('DB_PORT', 5432),
-        username: configService.get<string>('DB_USER', 'postgres_user'),
-        password: configService.get<string>('DB_PASSWORD', 'postgres_password'),
-        database: configService.get<string>('DB_NAME', 'support_ticket_db'),
-        autoLoadEntities: true,
-        synchronize: false,
-      }),
+      useFactory: (configService: ConfigService) => configService.get('database') as TypeOrmModuleOptions,
       inject: [ConfigService],
     }),
-
-    // 3. modulos de la aplicación
     AuthModule,
     TicketsModule,
+    AreasModule,
+    UsersModule,
+    ReportsModule,
   ],
   controllers: [],
   providers: [],
