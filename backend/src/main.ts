@@ -1,22 +1,22 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module.js';
-import { ValidationPipe } from '@nestjs/common';
-import { HttpExceptionFilter } from './common/filters/http-exception.filter.js';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  // 1. Pipes globales de validación para los DTOs
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,
-      forbidNonWhitelisted: true,
-    }),
-  );
+  // 👇 1. Configuración básica de Swagger
+  const config = new DocumentBuilder()
+    .setTitle('Sistema de Tickets API')
+    .setDescription('Documentación interactiva de la API para la gestión de tickets')
+    .setVersion('1.0')
+    .addBearerAuth() // Activa el botón para enviar tokens JWT si tienes autenticación
+    .build();
 
-  // 2. Filtro global de excepciones personalizado
-  app.useGlobalFilters(new HttpExceptionFilter());
-
+  // 👇 2. Creación del documento y configuración de la ruta
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api/docs', app, document); // La ruta será http://localhost:3000/api/docs
   await app.listen(3000);
+  console.log(`Servidor corriendo en: http://localhost:3000`);
 }
 bootstrap();

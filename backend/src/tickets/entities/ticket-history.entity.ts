@@ -1,36 +1,42 @@
 import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  ManyToOne,
-  JoinColumn,
-  CreateDateColumn,
+    Entity,
+    PrimaryGeneratedColumn,
+    Column,
+    ManyToOne,
+    JoinColumn,
+    CreateDateColumn,
 } from 'typeorm';
-import { Ticket } from './ticket.entity.js';
-import { User } from '../../users/entities/user.entity.js';
 
 @Entity('ticket_history')
 export class TicketHistory {
-  @PrimaryGeneratedColumn()
-  id: number;
+    @PrimaryGeneratedColumn()
+    id: number;
 
-  @Column()
-  ticket_id: number;
+    @Column()
+    ticket_id: number;
 
-  @ManyToOne(() => Ticket, (ticket) => ticket.history, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'ticket_id' })
-  ticket: Ticket;
+    @ManyToOne('Ticket', (ticket: any) => ticket.history, { onDelete: 'CASCADE' })
+    @JoinColumn({ name: 'ticket_id' })
+    ticket: any; // O puedes usar 'import type { Ticket } ...' arriba para mantener tipado estricto
 
-  @Column()
-  changed_by: number;
+    @Column()
+    changed_by: number;
+    @ManyToOne('User', { eager: true })
+    @JoinColumn({ name: 'changed_by' })
+    user: any;
 
-  @ManyToOne(() => User, { eager: true })
-  @JoinColumn({ name: 'changed_by' })
-  user: User;
+    @Column({ type: 'text' })
+    action_description: string;
 
-  @Column({ type: 'text' })
-  action_description: string; // Ejemplo: "Cambió el estado de Abierto a En Progreso"
+    @Column({ nullable: true })
+    field_changed?: string | null;
 
-  @CreateDateColumn()
-  created_at: Date;
+    @Column({ nullable: true, type: 'text' })
+    old_value?: string | null;
+
+    @Column({ nullable: true, type: 'text' })
+    new_value?: string | null;
+
+    @CreateDateColumn()
+    created_at: Date;
 }

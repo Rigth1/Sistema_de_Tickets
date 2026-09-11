@@ -8,9 +8,6 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { User } from '../../users/entities/user.entity.js';
-import { Area } from '../../areas/entities/area.entity.js';
-import { TicketHistory } from './ticket-history.entity.js';
 
 @Entity('tickets')
 export class Ticket {
@@ -32,26 +29,26 @@ export class Ticket {
   @Column()
   created_by: number;
 
-  @ManyToOne(() => User, { eager: true })
+  @ManyToOne('User', { eager: true })
   @JoinColumn({ name: 'created_by' })
-  creator: User;
+  creator: any;
 
   @Column({ nullable: true })
   assigned_to: number;
 
-  @ManyToOne(() => User, { nullable: true, eager: true })
+  @ManyToOne('User', { nullable: true, eager: true })
   @JoinColumn({ name: 'assigned_to' })
-  assignee: User;
+  assignee: any;
 
   @Column()
   area_id: number;
 
-  @ManyToOne(() => Area, { eager: true })
+  @ManyToOne('Area', { eager: true })
   @JoinColumn({ name: 'area_id' })
-  area: Area;
+  area: any;
 
-  @OneToMany(() => TicketHistory, (history) => history.ticket)
-  history: TicketHistory[];
+  @OneToMany('TicketHistory', (history: any) => history.ticket, { cascade: true })
+  history: any[];
 
   @CreateDateColumn()
   created_at: Date;
